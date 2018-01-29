@@ -1,0 +1,54 @@
+<html>
+<head>
+	<title>
+		Keystroke data collection test
+	</title>
+
+	<style>
+	#log {
+	font-family: "Lucida Console", Monaco, monospace;
+	font-size: 10pt;
+	}
+	</style>
+</head>
+<body>
+Enter a sample: <input type="text" name="sample" onkeydown="kd(event)" onkeyup="ku(event)" autofocus>
+<button type="button" onclick="saveData();">Save Data</button>
+
+<div id="status">
+</div>
+<div id="log">
+</div>
+<script>
+var divLog = document.getElementById("log");
+var keystrokeData = [];
+
+function kd(e){
+	console.log("KD: " + e.code + " " + e.timeStamp);
+	divLog.innerText += "\nKey Down: " + e.code + " " + e.timeStamp;
+	keystrokeData.push({key:e.code, time:e.timeStamp});
+}
+
+function ku(e){
+	console.log("KU: " + e.code + " " + e.timeStamp);
+	divLog.innerText += "\nKey Up:   " + e.code + " " + e.timeStamp;
+	keystrokeData.push({key:e.code, time:e.timeStamp});
+}
+
+function saveData(){
+	var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			document.getElementById("status").innerText = this.responseText;
+		}
+	};
+	xhttp.open("POST", "saveData.php", true);
+	xhttp.setRequestHeader("Content-type", "application/JSON");
+	xhttp.send(JSON.stringify(keystrokeData));
+}
+
+
+</script>
+</body>
+
+</html>
