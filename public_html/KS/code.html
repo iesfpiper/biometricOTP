@@ -1,0 +1,106 @@
+<html>
+<head>
+	<title>
+		Keystroke data collection test
+	</title>
+
+	<style>
+	#log {
+	font-family: "Lucida Console", Monaco, monospace;
+	font-size: 10pt;
+	}
+	</style>
+</head>
+<body>
+Enter a sample: <input type="text" name="sample" onkeydown="kd(event)" onkeyup="ku(event)" autofocus>
+<button type="button" onclick="saveData();">Save Data</button>
+
+<div id="status">
+</div>
+<pre>
+<div id="log">
+</div>
+</pre>
+<script>
+if (!String.prototype.repeat) {
+  String.prototype.repeat = function(count) {
+    'use strict';
+    if (this == null) {
+      throw new TypeError('can\'t convert ' + this + ' to object');
+    }
+    var str = '' + this;
+    count = +count;
+    if (count != count) {
+      count = 0;
+    }
+    if (count < 0) {
+      throw new RangeError('repeat count must be non-negative');
+    }
+    if (count == Infinity) {
+      throw new RangeError('repeat count must be less than infinity');
+    }
+    count = Math.floor(count);
+    if (str.length == 0 || count == 0) {
+      return '';
+    }
+    // Ensuring count is a 31-bit integer allows us to heavily optimize the
+    // main part. But anyway, most current (August 2014) browsers can't handle
+    // strings 1 << 28 chars or longer, so:
+    if (str.length * count >= 1 << 28) {
+      throw new RangeError('repeat count must not overflow maximum string size');
+    }
+    var rpt = '';
+    for (var i = 0; i < count; i++) {
+      rpt += str;
+    }
+    return rpt;
+  }
+}
+if (!String.prototype.padEnd) {
+    String.prototype.padEnd = function padEnd(targetLength,padString) {
+        targetLength = targetLength>>0; //floor if number or convert non-number to 0;
+        padString = String((typeof padString !== 'undefined' ? padString : ' '));
+        if (this.length > targetLength) {
+            return String(this);
+        }
+        else {
+            targetLength = targetLength-this.length;
+            if (targetLength > padString.length) {
+                padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
+            }
+            return String(this) + padString.slice(0,targetLength);
+        }
+    };
+}
+var divLog = document.getElementById("log");
+var keystrokeData = [];
+divLog.innerText += "Event".padEnd(14) + "Key".padEnd(14) + "Time Stamp";
+function kd(e){
+	console.log("KD: " + e.key + " " + e.timeStamp);
+	divLog.innerText += "\n" + "Key Down:".padEnd(14) + (e.key).padEnd(14) + " " + e.timeStamp;
+	keystrokeData.push({key:e.key, time:e.timeStamp});
+}
+
+function ku(e){
+	console.log("KU: " + e.key + " " + e.timeStamp);
+	divLog.innerText += "\n" + "Key Up:".padEnd(14) + (e.key).padEnd(14) + " " + e.timeStamp;
+	keystrokeData.push({key:e.key, time:e.timeStamp});
+}
+
+function saveData(){
+	var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			document.getElementById("status").innerText = this.responseText;
+		}
+	};
+	xhttp.open("POST", "saveData.php", true);
+	xhttp.setRequestHeader("Content-type", "application/JSON");
+	xhttp.send(JSON.stringify(keystrokeData));
+}
+
+
+</script>
+</body>
+
+</html>
