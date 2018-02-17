@@ -75,16 +75,20 @@ if (!String.prototype.padEnd) {
 var divLog = document.getElementById("log");
 var keystrokeData = [];
 divLog.innerText += "Event".padEnd(14) + "Key".padEnd(14) + "Time Stamp";
+var lastDown;
+var lastUp;
 function kd(e){
 	console.log("KD: " + e.key + " " + e.timeStamp);
 	divLog.innerText += "\n" + "Key Down:".padEnd(14) + (e.key).padEnd(14) + " " + e.timeStamp;
 	keystrokeData.push({key:e.key, time:e.timeStamp});
+	lastDown=e;
 }
 
 function ku(e){
 	console.log("KU: " + e.key + " " + e.timeStamp);
 	divLog.innerText += "\n" + "Key Up:".padEnd(14) + (e.key).padEnd(14) + " " + e.timeStamp;
 	keystrokeData.push({key:e.key, time:e.timeStamp});
+	lastUp=e;
 }
 
 function saveData(){
